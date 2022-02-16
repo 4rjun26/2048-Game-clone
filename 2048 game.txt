@@ -1,0 +1,286 @@
+   float l=100;
+   int dir=0;
+   float spd=20,ts=20;
+  ArrayList<PVector> tiles=new ArrayList();
+  ArrayList<Integer> values=new ArrayList();
+    void setup(){
+     size(400,400);
+     textSize(ts);
+     colorMode(HSB);
+     PVector p=new PVector(0,0);
+     for(int i=0;i<2;){
+        p.set(floor(random(width/l))*l,floor(random(width/l))*l);
+      if(isTaken(p)==false){
+        int n=0;
+        if(random(101)<=40){
+          n=4;
+        }
+        else{
+         n=2; 
+        }
+        values.add(n);
+        tiles.add(new PVector(p.x,p.y));
+        i++;
+      }
+     }
+    }
+    
+    boolean isTaken(PVector v){
+     for(int i=tiles.size()-1;i>=0;i--){
+       PVector m=tiles.get(i);
+      if(v.x==m.x && v.y==m.y){
+        return true;
+      }
+     }
+      return false;
+    }
+    
+    void draw(){
+     background(255); 
+     strokeWeight(2);
+     for(int i=tiles.size()-1;i>=0;i--){
+       PVector m=tiles.get(i);
+       int n=values.get(i);
+       float root=getRoot(n);
+       float c=map(root,1,11,0,255);
+        fill(c,255,255);
+       square(m.x,m.y,l);
+        fill(0);
+        text(n,m.x+l/2-ts,m.y+l/2);
+     }
+     
+     if(dir!=0){
+       if(dir==1){
+        moveUp(); 
+       }
+       else if(dir==2){
+        moveDown(); 
+       }
+       else if(dir==3){
+        moveRight(); 
+       }
+       else if(dir==4){
+        moveLeft(); 
+       }
+     }
+    }
+    
+    int getRoot(int n){
+      int count=0;
+      while(n>1){
+        n/=2;
+        count++;
+      }
+      return count;
+    }
+    
+    void keyReleased(){
+     if(key==CODED && dir==0){
+      if(keyCode==UP){
+       dir=1; 
+       sortUpside();
+      }
+      else if(keyCode==DOWN){
+       dir=2; 
+       sortDownside();
+      }
+      else if(keyCode==RIGHT){
+       dir=3; 
+       sortRightside();
+      }
+      else if(keyCode==LEFT){
+       dir=4; 
+       sortLeftside();
+      }
+     }
+    }
+    
+    void moveUp(){
+      boolean m=false;
+     for(int i=tiles.size()-1;i>=0;i--){
+       PVector v=tiles.get(i);
+       if(v.y>0 && isHit(v,i)==false){
+       v.y-=spd;
+       m=true;
+       }
+     }if(m==false){dir=0;addTile();}
+    }
+    
+    void moveDown(){
+      boolean m=false;
+     for(int i=tiles.size()-1;i>=0;i--){
+       PVector v=tiles.get(i);
+       if(v.y+l<height && isHit(v,i)==false){
+       v.y+=spd;
+       m=true;
+       }
+     }if(m==false){dir=0;addTile();}
+    }
+    
+    void moveRight(){
+      boolean m=false;
+     for(int i=tiles.size()-1;i>=0;i--){
+       PVector v=tiles.get(i);
+       if(v.x+l<width && isHit(v,i)==false){
+       v.x+=spd;
+       m=true;
+       }
+     }if(m==false){dir=0;addTile();}
+    }
+    
+    void moveLeft(){
+      boolean m=false;
+     for(int i=tiles.size()-1;i>=0;i--){
+       PVector v=tiles.get(i);
+       if(v.x>0 && isHit(v,i)==false){
+       v.x-=spd;
+       m=true;
+       }
+     }if(m==false){dir=0;addTile();}
+    }
+    
+    boolean isHit(PVector p,int ind){
+      int n=0;
+      for(int i=tiles.size()-1;i>=0;i--){
+       PVector m=tiles.get(i);
+       if((dir==1 && p.x==m.x)){
+         if(p.y-l==m.y){
+           if(values.get(i)==values.get(ind)){
+             n=values.get(i);
+            values.set(i,n*2);
+            tiles.remove(ind);
+            values.remove(ind);
+           }
+         return true;
+         }
+       }
+      else if((dir==2 && p.x==m.x)){
+         if(p.y+l==m.y){
+           if(values.get(i)==values.get(ind)){
+             n=values.get(i);
+            values.set(i,n*2);
+            tiles.remove(ind);
+            values.remove(ind);
+           }
+         return true;
+         }
+       }
+      else if((dir==3 && p.y==m.y)){
+         if(p.x+l==m.x){
+           if(values.get(i)==values.get(ind)){
+             n=values.get(i);
+            values.set(i,n*2);
+            tiles.remove(ind);
+            values.remove(ind);
+           }
+         return true;
+        }
+       }
+      else if((dir==4 && p.y==m.y)){
+         if(p.x-l==m.x){
+           if(values.get(i)==values.get(ind)){
+             n=values.get(i);
+            values.set(i,n*2);
+            tiles.remove(ind);
+            values.remove(ind);
+           }
+         return true;
+         }
+       }
+      }
+      
+      return false;
+    }
+    
+    void sortUpside(){
+     for(int i=tiles.size()-1;i>=0;i--){
+       for(int j=0;j<tiles.size()-1;j++){
+         PVector p=tiles.get(j);
+         PVector q=tiles.get(j+1);
+         int a=values.get(j);
+         int b=values.get(j+1);
+          if(p.y>q.y){
+           tiles.set(j,q);
+           tiles.set(j+1,p);
+           values.set(j,b);
+           values.set(j+1,a);
+         }
+       }
+      }
+    }
+    
+    void sortDownside(){
+     for(int i=tiles.size()-1;i>=0;i--){
+       for(int j=0;j<tiles.size()-1;j++){
+         PVector p=tiles.get(j);
+         PVector q=tiles.get(j+1);
+         int a=values.get(j);
+         int b=values.get(j+1);
+         if(p.x==q.x){
+          if((height-p.y)>(height-q.y)){
+           tiles.set(j,q);
+           tiles.set(j+1,p);
+           values.set(j,b);
+           values.set(j+1,a);
+          }
+         }
+       }
+      }
+    }
+    
+    void sortRightside(){
+     for(int i=tiles.size()-1;i>=0;i--){
+       for(int j=0;j<tiles.size()-1;j++){
+         PVector p=tiles.get(j);
+         PVector q=tiles.get(j+1);
+         int a=values.get(j);
+         int b=values.get(j+1);
+          if((height-p.x)>(height-q.x)){
+           tiles.set(j,q);
+           tiles.set(j+1,p);
+           values.set(j,b);
+           values.set(j+1,a);
+         }
+       }
+      }
+    }
+    
+    void sortLeftside(){
+     for(int i=tiles.size()-1;i>=0;i--){
+       for(int j=0;j<tiles.size()-1;j++){
+         PVector p=tiles.get(j);
+         PVector q=tiles.get(j+1);
+         int a=values.get(j);
+         int b=values.get(j+1);
+          if(p.x>q.x){
+           tiles.set(j,q);
+           tiles.set(j+1,p);
+           values.set(j,b);
+           values.set(j+1,a);
+         }
+       }
+      }
+    }
+    
+    void addTile(){
+      int n=0;
+      PVector p=new PVector(0,0);
+       while(true){
+       float x=floor(random(width/l))*l;
+       float y=floor(random(width/l))*l;
+       p.set(x,y);
+       if(isTaken(p)==false){
+        if(random(101)<=40){
+          n=4;
+        }
+        else{
+         n=2; 
+        }
+        values.add(n);
+        tiles.add(p);
+        break;
+       }
+     }
+    }
+    
+    
